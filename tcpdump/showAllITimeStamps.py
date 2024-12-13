@@ -8,7 +8,7 @@ packetHeader = fd.read(16)
 while packetHeader != b'':
     ts, mTs, capLen, capOrig = struct.unpack("<IIII", packetHeader)
     nPacket += 1
-    print (f"#{nPacket}: {datetime.datetime.fromtimestamp(ts)}")
+    print (f"#{nPacket}: {datetime.datetime.fromtimestamp(ts)}.{mTs}")
     packet = fd.seek(capLen, 1)
     packetHeader = fd.read(16)
 fd.close()

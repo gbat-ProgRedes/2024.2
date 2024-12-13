@@ -3,7 +3,6 @@ import struct
 fd = open ("./2024-nov-05--cap01.pcap", "rb")
 
 fd.read(24)
-
 packetHeader = fd.read(16)
 
 while packetHeader != b'':
