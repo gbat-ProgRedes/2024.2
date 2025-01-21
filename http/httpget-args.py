@@ -19,8 +19,11 @@ if len(sys.argv) == 4 and sys.argv[2] == "-o":
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if hostParts[0] == "https":
         sock = wrapSocket(sock, HOST)
+        PORT = 443
+    else:
+        PORT = 80
 
-    sock.connect((HOST, 80))
+    sock.connect((HOST, PORT))
 
     req = ('GET '+resource+' HTTP/1.1\r\n'+
            'Host: '+HOST+'\r\n'+
