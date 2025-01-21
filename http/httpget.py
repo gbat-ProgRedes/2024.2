@@ -9,13 +9,13 @@ sock.connect((HOST, 80))
 req = ('GET '+resource+' HTTP/1.1\r\n'+
        'Host: '+HOST+'\r\n'+
        '\r\n').encode()
-       
+
 sock.sendall(req)
 
 resp = sock.recv(4096)
 while b'\r\n\r\n' not in resp:
     resp += sock.recv(4096)
-    
+
 data = resp.split(b'\r\n\r\n')
 headers = data[0]
 body = data[1]
@@ -36,7 +36,7 @@ for header in headers:
 if toRead > 0:
     while len(body) < toRead:
         body += sock.recv(4096)
-    
+
     fd = open ('out.bin', 'wb')
     fd.write(body)
     fd.close()
