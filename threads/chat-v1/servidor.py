@@ -2,48 +2,52 @@ import socket
 import threading
 import sys
 
-def broadCastMensage(myConn, mensagem):
-    tam_mensagem = len(mensagem).to_bytes(2, 'big')
-    mensagem = tam_mensagem+mensagem
+def broadCastMensage(my_conn, my_addr, msg):
+    len_msg = len(msg).to_bytes(2, 'big')
+    msg = len_msg+msg
     
-    for conexao in conexoes:
-        if conexao != myConn: #nao manda a mensagem para o proprio cliente que esta enviando
+    for conn in all_conn:
+        if conn != my_conn: #nao manda a msg para o proprio cliente que esta enviando
             try:
-                conexao.send(mensagem)
+                conn.send(msg)
             except:
-                print(f"falha no envio a {(conexao, addr)}")
+                print(f"falha no envio a {my_addr}")
 
 
-def client (myConn, myAddr): #adrr ip e porta conn = concexao atual
-    print(f'Novo cliente conectado: {myAddr}')
-    conexoes.append(myConn)
-    prefix = f"{myAddr} digitou: ".encode('utf-8')
+def client (my_conn, my_addr): #adrr ip e PORT conn = concexao atual
+    print(f'Novo cliente conectado: {my_addr
+    }')
+    all_conn.append(my_conn)
+    prefix = f"{my_addr} digitou: ".encode('utf-8')
     
     while True:
         try:
-            tam_mensagem = myConn.recv(2) #2 bytes do tamanho
-            tam_mensagem = int.from_bytes(tam_mensagem,'big')
-            mensagem = prefix + myConn.recv(tam_mensagem)
-            broadCastMensage(myConn, mensagem)
+            len_msg = my_conn.recv(2) #2 bytes do tamanho
+            len_msg = int.from_bytes(len_msg,'big')
+            msg = prefix + my_conn.recv(len_msg)
+            broadCastMensage(my_conn, my_addr, msg)
         except:
-            print ("Falha no processamento do cliente ", myAddr, "saindo.")
+            print ("Falha no processamento do cliente ", my_addr, "saindo.")
             break
         
-    print(f"Cliente {myAddr} desconectado.") 
-    conexoes.remove(myConn)
-    myConn.close()
+    print(f"Cliente {my_addr} desconectado.") 
+    all_conn.remove(my_conn)
+    my_conn.close()
 
-host = 'localhost' 
-porta = 8080
-threads = []
-conexoes = []
+HOST = 'localhost' 
+PORT = 8080
+
+all_threads = []
+all_conn = []
 
 def startServer():
     try:
         sock = socket.socket() #flexibilidade de endereço
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #definida em socket e reutiliza portas ja conectadas (1 true)
-        sock.bind((host, porta))
-        sock.listen()
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1) #definida em socket e reutiliza PORTs ja conectadas (1 true)
+        sock.bind((HOST, PORT
+        ))
+        sock.listen
+        ()
         print("Aguardando conexões...")
     except OSError:
         print("Erro, endereço em uso.") #tratamento para o erro de endereço do terminal
@@ -56,13 +60,13 @@ def main():
     while True:
         try:
             conn, addr = sock.accept()
-            t = threading.Thread(target=client, args=(conn, addr)) #config das threads
-            threads.append(t)
+            t = threading.Thread(target=client, args=(conn, addr)) #config das all_threads
+            all_threads.append(t)
             t.start()
         except: 
             break
         
-    for t in threads:
+    for t in all_threads:
         t.join() #recolhe os processors antes de fecha  sock.close()
     sock.close()
 

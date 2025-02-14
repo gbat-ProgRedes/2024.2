@@ -5,47 +5,52 @@ import sys
 host = 'localhost'
 porta = 8080
 
-def enviar_mensagem():
+def userMessages():
     while True:
         try:
-            mensagem = input("> ")
-            if mensagem:
-                len_msg =  len(mensagem.encode('utf-8')).to_bytes(2, 'big') #2 bytes do tamanho 
-                mensagem_completa = len_msg + mensagem.encode("utf-8")
-                tcpSock.sendall(mensagem_completa)
-        except:
-            print("Parando programa.")
-            tcpSock.close()
+            msg = input("> ")
+            if msg:
+                len_msg =  len(msg.encode('utf-8')).to_bytes(2, 'big') #2 bytes do tamanho 
+                msg = len_msg + msg.encode("utf-8")
+                tcp_sock.sendall(msg)
+        except Exception as e:
+            print("Fechamento do input() ou servidor.\nFechando conexão com o servidor")
+            tcp_sock.close()
             break
  
-def receber_mensagem():
+def serverMessages():
     while True:
         try:
-            tam_msg = tcpSock.recv(2)  # Recebe os 2 primeiros bytes do tamanho
-            len_msg = int.from_bytes(tam_msg,'big')
-            bytes_msg = tcpSock.recv(len_msg) #recebe a string da mensagem
-            mensagem =  bytes_msg.decode("utf-8")
-            if mensagem:
-                print(f"Recebido: {mensagem}")
+            len_msg = int.from_bytes(tcp_sock.recv(2),'big')
+            bytes_msg = tcp_sock.recv(len_msg) #recebe a string da msg
+            msg = bytes_msg.decode("utf-8")
+            if msg:
+                print(f"Recebido: {msg}\n> ")
         except Exception as e:
-            print(f"Erro ao receber mensagem", e)
+            print(f"Conexão fechada pelo servidor.")
             break
     
 def startClient():
     try:
-        tcpSock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        tcpSock.connect((host, porta))
+        tcp_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        tcp_sock.connect((host, porta))
     except Exception as e:
-        print ("Falha na conexão ao servidor ",e)
+        print ("Falha na conexão ao servidor.")
         sys.exit(2)
-    return tcpSock
+    return tcp_sock
 
 
-tcpSock = startClient()
-thread_enviarMsg = threading.Thread(target=enviar_mensagem) # Threads das funções
-thread_receberMsg = threading.Thread(target=receber_mensagem)
+tcp_sock = startClient()
+thread_user = threading.Thread(target=userMessages) # Threads das funções
+thread_server = threading.Thread(target=serverMessages)
 
 print(f"Conectado em: {host, porta}")
 
-thread_enviarMsg.start()
-thread_receberMsg.start()
+try: 
+    thread_user.start()
+    thread_server.start()
+
+    thread_user.join()
+    thread_server.join()
+except KeyboardInterrupt as e:
+    print ("Finalizando por Cntl-C.") 
